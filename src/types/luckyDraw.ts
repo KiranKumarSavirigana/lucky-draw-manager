@@ -1,6 +1,16 @@
 export interface LuckyDrawProgram {
   id: string;
   name: string;
+  description: string;
+  status: 'draft' | 'active' | 'completed';
+  totalEvents: number;
+  createdAt: string;
+}
+
+export interface LuckyDrawEvent {
+  id: string;
+  programId: string;
+  name: string;
   date: string;
   description: string;
   status: 'draft' | 'active' | 'completed';
@@ -21,6 +31,7 @@ export interface Gift {
 export interface Winner {
   id: string;
   programId: string;
+  eventId: string;
   name: string;
   mobileNumber: string;
   employeeId?: string;
@@ -39,4 +50,5 @@ export interface GiftAllocation {
 }
 
 export type ProgramStatus = 'draft' | 'active' | 'completed';
+export type EventStatus = 'draft' | 'active' | 'completed';
 export type WinnerStatus = 'pending' | 'assigned' | 'locked';

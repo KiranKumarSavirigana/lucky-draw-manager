@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { LuckyDrawProgram } from '@/types/luckyDraw';
-import { Calendar, ChevronRight, Users } from 'lucide-react';
+import { CalendarDays, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
@@ -28,7 +28,7 @@ export function ProgramOverview({ programs }: ProgramOverviewProps) {
       <div className="flex items-center justify-between p-6 border-b border-border">
         <div>
           <h3 className="font-semibold text-lg">Active Programs</h3>
-          <p className="text-sm text-muted-foreground">Manage your lucky draw events</p>
+          <p className="text-sm text-muted-foreground">Manage your lucky draw programs</p>
         </div>
         <Button variant="outline" size="sm" asChild>
           <Link to="/programs">View All</Link>
@@ -38,14 +38,14 @@ export function ProgramOverview({ programs }: ProgramOverviewProps) {
         {programs.slice(0, 3).map((program) => (
           <Link
             key={program.id}
-            to={`/programs/${program.id}`}
+            to={`/programs/${program.id}/events`}
             className="flex items-center gap-4 p-4 transition-colors hover:bg-muted/50 group"
           >
             <div className={cn(
               'flex h-12 w-12 items-center justify-center rounded-xl',
               program.status === 'active' ? 'gradient-gold' : 'bg-secondary'
             )}>
-              <Calendar className={cn(
+              <CalendarDays className={cn(
                 'h-5 w-5',
                 program.status === 'active' ? 'text-foreground' : 'text-muted-foreground'
               )} />
@@ -59,12 +59,8 @@ export function ProgramOverview({ programs }: ProgramOverviewProps) {
               </div>
               <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1">
-                  <Calendar className="h-3.5 w-3.5" />
-                  {new Date(program.date).toLocaleDateString()}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Users className="h-3.5 w-3.5" />
-                  {program.totalWinners} winners
+                  <CalendarDays className="h-3.5 w-3.5" />
+                  {program.totalEvents} event{program.totalEvents !== 1 ? 's' : ''}
                 </span>
               </div>
             </div>

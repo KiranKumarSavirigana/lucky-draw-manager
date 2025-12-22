@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -23,7 +24,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { mockPrograms } from '@/data/mockData';
 import { LuckyDrawProgram } from '@/types/luckyDraw';
-import { Plus, Search, Calendar, Users, Copy, MoreHorizontal } from 'lucide-react';
+import { Plus, Search, CalendarDays, Copy, MoreHorizontal, ChevronRight } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,12 +34,12 @@ import {
 import { toast } from '@/hooks/use-toast';
 
 export default function Programs() {
+  const navigate = useNavigate();
   const [programs, setPrograms] = useState<LuckyDrawProgram[]>(mockPrograms);
   const [searchQuery, setSearchQuery] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newProgram, setNewProgram] = useState({
     name: '',
-    date: '',
     description: '',
   });
 
@@ -62,10 +63,10 @@ export default function Programs() {
   };
 
   const handleCreateProgram = () => {
-    if (!newProgram.name || !newProgram.date) {
+    if (!newProgram.name) {
       toast({
         title: 'Validation Error',
-        description: 'Please fill in all required fields.',
+        description: 'Please enter a program name.',
         variant: 'destructive',
       });
       return;
@@ -74,15 +75,14 @@ export default function Programs() {
     const program: LuckyDrawProgram = {
       id: Date.now().toString(),
       name: newProgram.name,
-      date: newProgram.date,
       description: newProgram.description,
       status: 'draft',
-      totalWinners: 0,
+      totalEvents: 0,
       createdAt: new Date().toISOString().split('T')[0],
     };
 
     setPrograms([program, ...programs]);
-    setNewProgram({ name: '', date: '', description: '' });
+    setNewProgram({ name: '', description: '' });
     setIsDialogOpen(false);
     toast({
       title: 'Program Created',
@@ -96,7 +96,7 @@ export default function Programs() {
       id: Date.now().toString(),
       name: `${program.name} (Copy)`,
       status: 'draft',
-      totalWinners: 0,
+      totalEvents: 0,
       createdAt: new Date().toISOString().split('T')[0],
     };
     setPrograms([clonedProgram, ...programs]);
@@ -106,13 +106,17 @@ export default function Programs() {
     });
   };
 
+  const handleViewEvents = (programId: string) => {
+    navigate(`/programs/${programId}/events`);
+  };
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Programs</h1>
-          <p className="text-muted-foreground">Manage your lucky draw programs</p>
+          <p className="text-muted-foreground">Manage your lucky draw programs and their events</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -125,7 +129,7 @@ export default function Programs() {
             <DialogHeader>
               <DialogTitle>Create New Program</DialogTitle>
               <DialogDescription>
-                Set up a new lucky draw program with details and date.
+                Set up a new lucky draw program. You can add events after creation.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
@@ -136,15 +140,6 @@ export default function Programs() {
                   placeholder="e.g., Annual Lucky Draw 2024"
                   value={newProgram.name}
                   onChange={(e) => setNewProgram({ ...newProgram, name: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="date">Event Date *</Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={newProgram.date}
-                  onChange={(e) => setNewProgram({ ...newProgram, date: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
@@ -186,28 +181,25 @@ export default function Programs() {
           <TableHeader>
             <TableRow className="bg-muted/50">
               <TableHead>Program Name</TableHead>
-              <TableHead>Date</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Winners</TableHead>
+              <TableHead>Events</TableHead>
               <TableHead>Created</TableHead>
-              <TableHead className="w-12"></TableHead>
+              <TableHead className="w-24"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredPrograms.map((program) => (
-              <TableRow key={program.id} className="hover:bg-muted/30">
+              <TableRow 
+                key={program.id} 
+                className="hover:bg-muted/30 cursor-pointer"
+                onClick={() => handleViewEvents(program.id)}
+              >
                 <TableCell>
                   <div>
                     <p className="font-medium">{program.name}</p>
-                    <p className="text-sm text-muted-foreground truncate max-w-[250px]">
+                    <p className="text-sm text-muted-foreground truncate max-w-[300px]">
                       {program.description}
                     </p>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    {new Date(program.date).toLocaleDateString()}
                   </div>
                 </TableCell>
                 <TableCell>
@@ -217,33 +209,36 @@ export default function Programs() {
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2 text-sm">
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                    {program.totalWinners}
+                    <CalendarDays className="h-4 w-4 text-muted-foreground" />
+                    {program.totalEvents} event{program.totalEvents !== 1 ? 's' : ''}
                   </div>
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">
                   {new Date(program.createdAt).toLocaleDateString()}
                 </TableCell>
                 <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="bg-popover">
-                      <DropdownMenuItem onClick={() => handleCloneProgram(program)}>
-                        <Copy className="h-4 w-4 mr-2" />
-                        Clone Program
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="bg-popover">
+                        <DropdownMenuItem onClick={() => handleCloneProgram(program)}>
+                          <Copy className="h-4 w-4 mr-2" />
+                          Clone Program
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
             {filteredPrograms.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">
+                <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
                   No programs found. Create your first lucky draw program!
                 </TableCell>
               </TableRow>
