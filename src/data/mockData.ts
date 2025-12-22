@@ -1,32 +1,82 @@
-import { LuckyDrawProgram, Gift, Winner, GiftAllocation } from '@/types/luckyDraw';
+import { LuckyDrawProgram, LuckyDrawEvent, Gift, Winner, GiftAllocation } from '@/types/luckyDraw';
 
 export const mockPrograms: LuckyDrawProgram[] = [
   {
     id: '1',
     name: 'New Year Lucky Draw 2024',
-    date: '2024-01-15',
     description: 'Annual New Year celebration lucky draw for all employees',
     status: 'completed',
-    totalWinners: 25,
+    totalEvents: 2,
     createdAt: '2024-01-01',
   },
   {
     id: '2',
     name: 'Customer Appreciation Week',
-    date: '2024-03-20',
     description: 'Special lucky draw for valued customers',
     status: 'active',
-    totalWinners: 50,
+    totalEvents: 3,
     createdAt: '2024-03-01',
   },
   {
     id: '3',
     name: 'Diwali Festival Draw 2024',
-    date: '2024-11-01',
     description: 'Festive celebration lucky draw with exciting prizes',
     status: 'draft',
-    totalWinners: 0,
+    totalEvents: 0,
     createdAt: '2024-10-15',
+  },
+];
+
+export const mockEvents: LuckyDrawEvent[] = [
+  {
+    id: 'e1',
+    programId: '1',
+    name: 'New Year Main Draw',
+    date: '2024-01-15',
+    description: 'Main lucky draw event for all employees',
+    status: 'completed',
+    totalWinners: 15,
+    createdAt: '2024-01-01',
+  },
+  {
+    id: 'e2',
+    programId: '1',
+    name: 'New Year Bonus Round',
+    date: '2024-01-16',
+    description: 'Bonus round for remaining participants',
+    status: 'completed',
+    totalWinners: 10,
+    createdAt: '2024-01-01',
+  },
+  {
+    id: 'e3',
+    programId: '2',
+    name: 'Week 1 Draw',
+    date: '2024-03-20',
+    description: 'First week customer appreciation draw',
+    status: 'active',
+    totalWinners: 20,
+    createdAt: '2024-03-15',
+  },
+  {
+    id: 'e4',
+    programId: '2',
+    name: 'Week 2 Draw',
+    date: '2024-03-27',
+    description: 'Second week customer appreciation draw',
+    status: 'draft',
+    totalWinners: 0,
+    createdAt: '2024-03-15',
+  },
+  {
+    id: 'e5',
+    programId: '2',
+    name: 'Grand Finale',
+    date: '2024-04-01',
+    description: 'Grand finale with major prizes',
+    status: 'draft',
+    totalWinners: 0,
+    createdAt: '2024-03-15',
   },
 ];
 
@@ -77,6 +127,7 @@ export const mockWinners: Winner[] = [
   {
     id: '1',
     programId: '2',
+    eventId: 'e3',
     name: 'Rahul Sharma',
     mobileNumber: '+91 98765 43210',
     employeeId: 'EMP001',
@@ -89,6 +140,7 @@ export const mockWinners: Winner[] = [
   {
     id: '2',
     programId: '2',
+    eventId: 'e3',
     name: 'Priya Patel',
     mobileNumber: '+91 87654 32109',
     customerId: 'CUST002',
@@ -101,6 +153,7 @@ export const mockWinners: Winner[] = [
   {
     id: '3',
     programId: '2',
+    eventId: 'e3',
     name: 'Amit Kumar',
     mobileNumber: '+91 76543 21098',
     employeeId: 'EMP003',
@@ -113,6 +166,7 @@ export const mockWinners: Winner[] = [
   {
     id: '4',
     programId: '2',
+    eventId: 'e3',
     name: 'Sneha Gupta',
     mobileNumber: '+91 65432 10987',
     rank: 4,
@@ -124,6 +178,7 @@ export const mockWinners: Winner[] = [
   {
     id: '5',
     programId: '2',
+    eventId: 'e3',
     name: 'Vikram Singh',
     mobileNumber: '+91 54321 09876',
     customerId: 'CUST005',

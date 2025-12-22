@@ -11,25 +11,15 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { mockWinners, mockPrograms, mockGifts } from '@/data/mockData';
+import { mockWinners, mockPrograms, mockEvents } from '@/data/mockData';
 import { Winner } from '@/types/luckyDraw';
-import { Plus, Search, Lock, Unlock, Download, Phone, Gift } from 'lucide-react';
+import { Search, Lock, Unlock, Download, Phone, Gift } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
@@ -37,25 +27,22 @@ export default function Winners() {
   const [winners, setWinners] = useState<Winner[]>(mockWinners);
   const [searchQuery, setSearchQuery] = useState('');
   const [programFilter, setProgramFilter] = useState<string>('all');
+  const [eventFilter, setEventFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [newWinner, setNewWinner] = useState({
-    name: '',
-    mobileNumber: '',
-    employeeId: '',
-    customerId: '',
-    programId: '',
-    rank: '',
-    giftId: '',
-  });
+
+  // Get filtered events based on selected program
+  const filteredEventOptions = programFilter === 'all' 
+    ? mockEvents 
+    : mockEvents.filter(e => e.programId === programFilter);
 
   const filteredWinners = winners.filter((winner) => {
     const matchesSearch =
       winner.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       winner.mobileNumber.includes(searchQuery);
     const matchesProgram = programFilter === 'all' || winner.programId === programFilter;
+    const matchesEvent = eventFilter === 'all' || winner.eventId === eventFilter;
     const matchesStatus = statusFilter === 'all' || winner.status === statusFilter;
-    return matchesSearch && matchesProgram && matchesStatus;
+    return matchesSearch && matchesProgram && matchesEvent && matchesStatus;
   });
 
   const getStatusBadgeVariant = (status: Winner['status']) => {
@@ -78,59 +65,14 @@ export default function Winners() {
     return { label: `${rank}th`, variant: 'muted' as const };
   };
 
-  const handleAddWinner = () => {
-    if (!newWinner.name || !newWinner.mobileNumber || !newWinner.programId || !newWinner.rank) {
-      toast({
-        title: 'Validation Error',
-        description: 'Please fill in all required fields.',
-        variant: 'destructive',
-      });
-      return;
-    }
+  const getEventName = (eventId: string) => {
+    const event = mockEvents.find(e => e.id === eventId);
+    return event?.name || '-';
+  };
 
-    const isDuplicate = winners.some(
-      (w) => w.programId === newWinner.programId && w.mobileNumber === newWinner.mobileNumber
-    );
-
-    if (isDuplicate) {
-      toast({
-        title: 'Duplicate Entry',
-        description: 'This participant already exists in the selected program.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    const gift = mockGifts.find((g) => g.id === newWinner.giftId);
-    const winner: Winner = {
-      id: Date.now().toString(),
-      programId: newWinner.programId,
-      name: newWinner.name,
-      mobileNumber: newWinner.mobileNumber,
-      employeeId: newWinner.employeeId || undefined,
-      customerId: newWinner.customerId || undefined,
-      rank: parseInt(newWinner.rank),
-      giftId: newWinner.giftId || undefined,
-      giftName: gift?.name,
-      status: newWinner.giftId ? 'assigned' : 'pending',
-      createdAt: new Date().toISOString().split('T')[0],
-    };
-
-    setWinners([...winners, winner].sort((a, b) => a.rank - b.rank));
-    setNewWinner({
-      name: '',
-      mobileNumber: '',
-      employeeId: '',
-      customerId: '',
-      programId: '',
-      rank: '',
-      giftId: '',
-    });
-    setIsDialogOpen(false);
-    toast({
-      title: 'Winner Added',
-      description: `${winner.name} has been added as #${winner.rank} winner.`,
-    });
+  const getProgramName = (programId: string) => {
+    const program = mockPrograms.find(p => p.id === programId);
+    return program?.name || '-';
   };
 
   const handleToggleLock = (winnerId: string) => {
@@ -151,9 +93,9 @@ export default function Winners() {
 
   const handleExport = () => {
     const csv = [
-      ['Rank', 'Name', 'Mobile', 'Employee ID', 'Customer ID', 'Gift', 'Status'].join(','),
+      ['Rank', 'Name', 'Mobile', 'Employee ID', 'Customer ID', 'Program', 'Event', 'Gift', 'Status'].join(','),
       ...filteredWinners.map((w) =>
-        [w.rank, w.name, w.mobileNumber, w.employeeId || '', w.customerId || '', w.giftName || '', w.status].join(',')
+        [w.rank, w.name, w.mobileNumber, w.employeeId || '', w.customerId || '', getProgramName(w.programId), getEventName(w.eventId), w.giftName || '', w.status].join(',')
       ),
     ].join('\n');
 
@@ -161,7 +103,7 @@ export default function Winners() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'winners-list.csv';
+    a.download = 'all-winners-list.csv';
     a.click();
     toast({
       title: 'Export Complete',
@@ -169,133 +111,24 @@ export default function Winners() {
     });
   };
 
+  // Reset event filter when program changes
+  const handleProgramFilterChange = (value: string) => {
+    setProgramFilter(value);
+    setEventFilter('all');
+  };
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Winners</h1>
-          <p className="text-muted-foreground">Manage and track all lucky draw winners</p>
+          <h1 className="text-2xl font-bold tracking-tight">All Winners</h1>
+          <p className="text-muted-foreground">View all lucky draw winners across programs and events</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleExport}>
-            <Download className="h-4 w-4" />
-            Export
-          </Button>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="gold">
-                <Plus className="h-4 w-4" />
-                Add Winner
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-lg">
-              <DialogHeader>
-                <DialogTitle>Add New Winner</DialogTitle>
-                <DialogDescription>
-                  Enter the winner's details and assign their prize.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="winnerName">Name *</Label>
-                    <Input
-                      id="winnerName"
-                      placeholder="Full name"
-                      value={newWinner.name}
-                      onChange={(e) => setNewWinner({ ...newWinner, name: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="mobile">Mobile Number *</Label>
-                    <Input
-                      id="mobile"
-                      placeholder="+91 98765 43210"
-                      value={newWinner.mobileNumber}
-                      onChange={(e) => setNewWinner({ ...newWinner, mobileNumber: e.target.value })}
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="employeeId">Employee ID</Label>
-                    <Input
-                      id="employeeId"
-                      placeholder="EMP001"
-                      value={newWinner.employeeId}
-                      onChange={(e) => setNewWinner({ ...newWinner, employeeId: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="customerId">Customer ID</Label>
-                    <Input
-                      id="customerId"
-                      placeholder="CUST001"
-                      value={newWinner.customerId}
-                      onChange={(e) => setNewWinner({ ...newWinner, customerId: e.target.value })}
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Program *</Label>
-                    <Select
-                      value={newWinner.programId}
-                      onValueChange={(value) => setNewWinner({ ...newWinner, programId: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select program" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-popover">
-                        {mockPrograms.map((program) => (
-                          <SelectItem key={program.id} value={program.id}>
-                            {program.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="rank">Winning Rank *</Label>
-                    <Input
-                      id="rank"
-                      type="number"
-                      min="1"
-                      placeholder="1"
-                      value={newWinner.rank}
-                      onChange={(e) => setNewWinner({ ...newWinner, rank: e.target.value })}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Assign Gift</Label>
-                  <Select
-                    value={newWinner.giftId}
-                    onValueChange={(value) => setNewWinner({ ...newWinner, giftId: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a gift (optional)" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-popover">
-                      {mockGifts.map((gift) => (
-                        <SelectItem key={gift.id} value={gift.id}>
-                          {gift.name} (₹{gift.value.toLocaleString()})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleAddWinner}>Add Winner</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
+        <Button variant="outline" onClick={handleExport}>
+          <Download className="h-4 w-4" />
+          Export
+        </Button>
       </div>
 
       {/* Filters */}
@@ -309,7 +142,7 @@ export default function Winners() {
             className="pl-10"
           />
         </div>
-        <Select value={programFilter} onValueChange={setProgramFilter}>
+        <Select value={programFilter} onValueChange={handleProgramFilterChange}>
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Filter by program" />
           </SelectTrigger>
@@ -318,6 +151,19 @@ export default function Winners() {
             {mockPrograms.map((program) => (
               <SelectItem key={program.id} value={program.id}>
                 {program.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={eventFilter} onValueChange={setEventFilter}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Filter by event" />
+          </SelectTrigger>
+          <SelectContent className="bg-popover">
+            <SelectItem value="all">All Events</SelectItem>
+            {filteredEventOptions.map((event) => (
+              <SelectItem key={event.id} value={event.id}>
+                {event.name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -343,7 +189,7 @@ export default function Winners() {
               <TableHead className="w-20">Rank</TableHead>
               <TableHead>Winner</TableHead>
               <TableHead>Contact</TableHead>
-              <TableHead>ID</TableHead>
+              <TableHead>Program / Event</TableHead>
               <TableHead>Gift</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="w-20">Actions</TableHead>
@@ -360,7 +206,12 @@ export default function Winners() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <p className="font-medium">{winner.name}</p>
+                    <div>
+                      <p className="font-medium">{winner.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {winner.employeeId || winner.customerId || '-'}
+                      </p>
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -368,17 +219,20 @@ export default function Winners() {
                       {winner.mobileNumber}
                     </div>
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {winner.employeeId || winner.customerId || '-'}
+                  <TableCell>
+                    <div>
+                      <p className="text-sm font-medium">{getProgramName(winner.programId)}</p>
+                      <p className="text-xs text-muted-foreground">{getEventName(winner.eventId)}</p>
+                    </div>
                   </TableCell>
                   <TableCell>
                     {winner.giftName ? (
                       <div className="flex items-center gap-2 text-sm">
                         <Gift className="h-4 w-4 text-primary" />
-                        <span className="truncate max-w-[150px]">{winner.giftName}</span>
+                        <span className="truncate max-w-[120px]">{winner.giftName}</span>
                       </div>
                     ) : (
-                      <span className="text-muted-foreground text-sm">No gift assigned</span>
+                      <span className="text-muted-foreground text-sm">No gift</span>
                     )}
                   </TableCell>
                   <TableCell>
@@ -408,7 +262,7 @@ export default function Winners() {
             {filteredWinners.length === 0 && (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
-                  No winners found. Add your first winner!
+                  No winners found.
                 </TableCell>
               </TableRow>
             )}
