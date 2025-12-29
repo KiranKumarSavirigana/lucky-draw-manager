@@ -23,7 +23,6 @@ import {
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { mockPrograms } from '@/data/mockData';
-import { LuckyDrawProgram } from '@/types/luckyDraw';
 import { Plus, Search, CalendarDays, Copy, MoreHorizontal, ChevronRight } from 'lucide-react';
 import {
   DropdownMenu,
@@ -35,7 +34,7 @@ import { toast } from '@/hooks/use-toast';
 
 export default function Programs() {
   const navigate = useNavigate();
-  const [programs, setPrograms] = useState<LuckyDrawProgram[]>(mockPrograms);
+  const [programs, setPrograms] = useState(mockPrograms);
   const [searchQuery, setSearchQuery] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newProgram, setNewProgram] = useState({
@@ -49,7 +48,7 @@ export default function Programs() {
       program.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const getStatusBadgeVariant = (status: LuckyDrawProgram['status']) => {
+  const getStatusBadgeVariant = (status) => {
     switch (status) {
       case 'active':
         return 'success';
@@ -72,7 +71,7 @@ export default function Programs() {
       return;
     }
 
-    const program: LuckyDrawProgram = {
+    const program = {
       id: Date.now().toString(),
       name: newProgram.name,
       description: newProgram.description,
@@ -90,8 +89,8 @@ export default function Programs() {
     });
   };
 
-  const handleCloneProgram = (program: LuckyDrawProgram) => {
-    const clonedProgram: LuckyDrawProgram = {
+  const handleCloneProgram = (program) => {
+    const clonedProgram = {
       ...program,
       id: Date.now().toString(),
       name: `${program.name} (Copy)`,
@@ -106,7 +105,7 @@ export default function Programs() {
     });
   };
 
-  const handleViewEvents = (programId: string) => {
+  const handleViewEvents = (programId) => {
     navigate(`/programs/${programId}/events`);
   };
 

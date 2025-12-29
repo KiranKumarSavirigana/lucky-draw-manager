@@ -29,23 +29,22 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { mockWinners, mockPrograms, mockEvents, mockGifts } from '@/data/mockData';
-import { Winner } from '@/types/luckyDraw';
 import { Plus, Search, Lock, Unlock, Download, Phone, Gift, ArrowLeft } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 export default function EventWinners() {
-  const { programId, eventId } = useParams<{ programId: string; eventId: string }>();
+  const { programId, eventId } = useParams();
   const navigate = useNavigate();
 
   const program = mockPrograms.find((p) => p.id === programId);
   const event = mockEvents.find((e) => e.id === eventId);
 
-  const [winners, setWinners] = useState<Winner[]>(
+  const [winners, setWinners] = useState(
     mockWinners.filter((w) => w.eventId === eventId)
   );
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newWinner, setNewWinner] = useState({
     name: '',
@@ -64,7 +63,7 @@ export default function EventWinners() {
     return matchesSearch && matchesStatus;
   });
 
-  const getStatusBadgeVariant = (status: Winner['status']) => {
+  const getStatusBadgeVariant = (status) => {
     switch (status) {
       case 'locked':
         return 'success';
@@ -77,11 +76,11 @@ export default function EventWinners() {
     }
   };
 
-  const getRankDisplay = (rank: number) => {
-    if (rank === 1) return { label: '1st', variant: 'gold' as const };
-    if (rank === 2) return { label: '2nd', variant: 'secondary' as const };
-    if (rank === 3) return { label: '3rd', variant: 'warning' as const };
-    return { label: `${rank}th`, variant: 'muted' as const };
+  const getRankDisplay = (rank) => {
+    if (rank === 1) return { label: '1st', variant: 'gold' };
+    if (rank === 2) return { label: '2nd', variant: 'secondary' };
+    if (rank === 3) return { label: '3rd', variant: 'warning' };
+    return { label: `${rank}th`, variant: 'muted' };
   };
 
   const handleAddWinner = () => {
@@ -108,10 +107,10 @@ export default function EventWinners() {
     }
 
     const gift = mockGifts.find((g) => g.id === newWinner.giftId);
-    const winner: Winner = {
+    const winner = {
       id: Date.now().toString(),
-      programId: programId!,
-      eventId: eventId!,
+      programId: programId,
+      eventId: eventId,
       name: newWinner.name,
       mobileNumber: newWinner.mobileNumber,
       employeeId: newWinner.employeeId || undefined,
@@ -139,7 +138,7 @@ export default function EventWinners() {
     });
   };
 
-  const handleToggleLock = (winnerId: string) => {
+  const handleToggleLock = (winnerId) => {
     setWinners(
       winners.map((w) => {
         if (w.id === winnerId) {
@@ -148,7 +147,7 @@ export default function EventWinners() {
             title: newStatus === 'locked' ? 'Winner Locked' : 'Winner Unlocked',
             description: `${w.name}'s record has been ${newStatus}.`,
           });
-          return { ...w, status: newStatus as Winner['status'] };
+          return { ...w, status: newStatus };
         }
         return w;
       })
