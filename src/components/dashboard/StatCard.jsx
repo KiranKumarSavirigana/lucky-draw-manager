@@ -1,19 +1,6 @@
-import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface StatCardProps {
-  title: string;
-  value: string | number;
-  subtitle?: string;
-  icon: LucideIcon;
-  trend?: {
-    value: number;
-    isPositive: boolean;
-  };
-  variant?: 'default' | 'gold' | 'primary';
-}
-
-export function StatCard({ title, value, subtitle, icon: Icon, trend, variant = 'default' }: StatCardProps) {
+export function StatCard({ title, value, subtitle, icon: Icon, trend, variant = 'default' }) {
   return (
     <div className={cn(
       'relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-all duration-200 hover:shadow-md animate-slide-up',

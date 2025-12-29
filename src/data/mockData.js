@@ -1,6 +1,4 @@
-import { LuckyDrawProgram, LuckyDrawEvent, Gift, Winner, GiftAllocation } from '@/types/luckyDraw';
-
-export const mockPrograms: LuckyDrawProgram[] = [
+export const mockPrograms = [
   {
     id: '1',
     name: 'New Year Lucky Draw 2024',
@@ -27,7 +25,7 @@ export const mockPrograms: LuckyDrawProgram[] = [
   },
 ];
 
-export const mockEvents: LuckyDrawEvent[] = [
+export const mockEvents = [
   {
     id: 'e1',
     programId: '1',
@@ -80,7 +78,7 @@ export const mockEvents: LuckyDrawEvent[] = [
   },
 ];
 
-export const mockGifts: Gift[] = [
+export const mockGifts = [
   {
     id: '1',
     name: 'iPhone 15 Pro',
@@ -123,7 +121,7 @@ export const mockGifts: Gift[] = [
   },
 ];
 
-export const mockWinners: Winner[] = [
+export const mockWinners = [
   {
     id: '1',
     programId: '2',
@@ -190,7 +188,7 @@ export const mockWinners: Winner[] = [
   },
 ];
 
-export const mockGiftAllocations: GiftAllocation[] = [
+export const mockGiftAllocations = [
   { rank: 1, giftId: '1', giftName: 'iPhone 15 Pro' },
   { rank: 2, giftId: '2', giftName: 'Samsung Galaxy Watch' },
   { rank: 3, giftId: '4', giftName: 'Bluetooth Earbuds' },

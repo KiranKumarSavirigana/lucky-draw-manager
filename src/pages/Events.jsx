@@ -23,7 +23,6 @@ import {
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { mockEvents, mockPrograms } from '@/data/mockData';
-import { LuckyDrawEvent } from '@/types/luckyDraw';
 import { Plus, Search, Calendar, Users, ArrowLeft, MoreHorizontal, Copy, UserPlus } from 'lucide-react';
 import {
   DropdownMenu,
@@ -34,11 +33,11 @@ import {
 import { toast } from '@/hooks/use-toast';
 
 export default function Events() {
-  const { programId } = useParams<{ programId: string }>();
+  const { programId } = useParams();
   const navigate = useNavigate();
   const program = mockPrograms.find((p) => p.id === programId);
 
-  const [events, setEvents] = useState<LuckyDrawEvent[]>(
+  const [events, setEvents] = useState(
     mockEvents.filter((e) => e.programId === programId)
   );
   const [searchQuery, setSearchQuery] = useState('');
@@ -55,7 +54,7 @@ export default function Events() {
       event.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const getStatusBadgeVariant = (status: LuckyDrawEvent['status']) => {
+  const getStatusBadgeVariant = (status) => {
     switch (status) {
       case 'active':
         return 'success';
@@ -78,9 +77,9 @@ export default function Events() {
       return;
     }
 
-    const event: LuckyDrawEvent = {
+    const event = {
       id: Date.now().toString(),
-      programId: programId!,
+      programId: programId,
       name: newEvent.name,
       date: newEvent.date,
       description: newEvent.description,
@@ -98,8 +97,8 @@ export default function Events() {
     });
   };
 
-  const handleCloneEvent = (event: LuckyDrawEvent) => {
-    const clonedEvent: LuckyDrawEvent = {
+  const handleCloneEvent = (event) => {
+    const clonedEvent = {
       ...event,
       id: Date.now().toString(),
       name: `${event.name} (Copy)`,
@@ -114,7 +113,7 @@ export default function Events() {
     });
   };
 
-  const handleManageWinners = (eventId: string) => {
+  const handleManageWinners = (eventId) => {
     navigate(`/programs/${programId}/events/${eventId}/winners`);
   };
 

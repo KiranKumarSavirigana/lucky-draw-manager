@@ -1,12 +1,7 @@
-import { Gift } from '@/types/luckyDraw';
 import { Gift as GiftIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface GiftAllocationChartProps {
-  gifts: Gift[];
-}
-
-export function GiftAllocationChart({ gifts }: GiftAllocationChartProps) {
+export function GiftAllocationChart({ gifts }) {
   return (
     <div className="rounded-xl border border-border bg-card animate-slide-up">
       <div className="flex items-center justify-between p-6 border-b border-border">

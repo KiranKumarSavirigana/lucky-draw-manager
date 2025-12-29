@@ -18,17 +18,16 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { mockWinners, mockPrograms, mockEvents } from '@/data/mockData';
-import { Winner } from '@/types/luckyDraw';
 import { Search, Lock, Unlock, Download, Phone, Gift } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 export default function Winners() {
-  const [winners, setWinners] = useState<Winner[]>(mockWinners);
+  const [winners, setWinners] = useState(mockWinners);
   const [searchQuery, setSearchQuery] = useState('');
-  const [programFilter, setProgramFilter] = useState<string>('all');
-  const [eventFilter, setEventFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [programFilter, setProgramFilter] = useState('all');
+  const [eventFilter, setEventFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   // Get filtered events based on selected program
   const filteredEventOptions = programFilter === 'all' 
@@ -45,7 +44,7 @@ export default function Winners() {
     return matchesSearch && matchesProgram && matchesEvent && matchesStatus;
   });
 
-  const getStatusBadgeVariant = (status: Winner['status']) => {
+  const getStatusBadgeVariant = (status) => {
     switch (status) {
       case 'locked':
         return 'success';
@@ -58,24 +57,24 @@ export default function Winners() {
     }
   };
 
-  const getRankDisplay = (rank: number) => {
-    if (rank === 1) return { label: '1st', variant: 'gold' as const };
-    if (rank === 2) return { label: '2nd', variant: 'secondary' as const };
-    if (rank === 3) return { label: '3rd', variant: 'warning' as const };
-    return { label: `${rank}th`, variant: 'muted' as const };
+  const getRankDisplay = (rank) => {
+    if (rank === 1) return { label: '1st', variant: 'gold' };
+    if (rank === 2) return { label: '2nd', variant: 'secondary' };
+    if (rank === 3) return { label: '3rd', variant: 'warning' };
+    return { label: `${rank}th`, variant: 'muted' };
   };
 
-  const getEventName = (eventId: string) => {
+  const getEventName = (eventId) => {
     const event = mockEvents.find(e => e.id === eventId);
     return event?.name || '-';
   };
 
-  const getProgramName = (programId: string) => {
+  const getProgramName = (programId) => {
     const program = mockPrograms.find(p => p.id === programId);
     return program?.name || '-';
   };
 
-  const handleToggleLock = (winnerId: string) => {
+  const handleToggleLock = (winnerId) => {
     setWinners(
       winners.map((w) => {
         if (w.id === winnerId) {
@@ -84,7 +83,7 @@ export default function Winners() {
             title: newStatus === 'locked' ? 'Winner Locked' : 'Winner Unlocked',
             description: `${w.name}'s record has been ${newStatus}.`,
           });
-          return { ...w, status: newStatus as Winner['status'] };
+          return { ...w, status: newStatus };
         }
         return w;
       })
@@ -112,7 +111,7 @@ export default function Winners() {
   };
 
   // Reset event filter when program changes
-  const handleProgramFilterChange = (value: string) => {
+  const handleProgramFilterChange = (value) => {
     setProgramFilter(value);
     setEventFilter('all');
   };

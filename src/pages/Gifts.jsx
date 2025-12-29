@@ -22,17 +22,15 @@ import {
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { mockGifts } from '@/data/mockData';
-import { Gift } from '@/types/luckyDraw';
 import { Plus, Search, Package, IndianRupee, Edit2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
-import { cn } from '@/lib/utils';
 
 export default function Gifts() {
-  const [gifts, setGifts] = useState<Gift[]>(mockGifts);
+  const [gifts, setGifts] = useState(mockGifts);
   const [searchQuery, setSearchQuery] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingGift, setEditingGift] = useState<Gift | null>(null);
+  const [editingGift, setEditingGift] = useState(null);
   const [newGift, setNewGift] = useState({
     name: '',
     description: '',
@@ -79,7 +77,7 @@ export default function Gifts() {
         description: `"${newGift.name}" has been updated.`,
       });
     } else {
-      const gift: Gift = {
+      const gift = {
         id: Date.now().toString(),
         name: newGift.name,
         description: newGift.description,
@@ -99,7 +97,7 @@ export default function Gifts() {
     setIsDialogOpen(false);
   };
 
-  const handleEditGift = (gift: Gift) => {
+  const handleEditGift = (gift) => {
     setEditingGift(gift);
     setNewGift({
       name: gift.name,

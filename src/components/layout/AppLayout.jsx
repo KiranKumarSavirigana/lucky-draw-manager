@@ -1,14 +1,9 @@
-import { ReactNode } from 'react';
 import { AppSidebar } from './AppSidebar';
 import { Bell, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
-interface AppLayoutProps {
-  children: ReactNode;
-}
-
-export function AppLayout({ children }: AppLayoutProps) {
+export function AppLayout({ children }) {
   return (
     <div className="flex min-h-screen w-full bg-background">
       <AppSidebar />
